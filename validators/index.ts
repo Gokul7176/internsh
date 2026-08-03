@@ -286,6 +286,7 @@ export const EnvSchema = z.object({
   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: z.string().optional(),
   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
   NEXT_PUBLIC_FIREBASE_APP_ID: z.string().optional(),
+  NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: z.string().optional(),
   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().optional(),
   NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: z.string().optional(),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
