@@ -4,7 +4,6 @@ import React from 'react';
 import { ProductCategory, SkinType } from '@/types';
 import { ProductFilters } from '@/hooks/useProducts';
 import { Filter, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 
 interface FilterSidebarProps {
   filters: ProductFilters;

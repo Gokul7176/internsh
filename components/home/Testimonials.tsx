@@ -60,7 +60,7 @@ export function Testimonials() {
                   <Quote className="w-8 h-8 text-stone-200 dark:text-stone-800" />
                 </div>
                 <h4 className="font-semibold text-stone-900 dark:text-stone-100 text-base">{rev.title}</h4>
-                <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed italic">"{rev.comment}"</p>
+                <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed italic">&quot;{rev.comment}&quot;</p>
               </div>
 
               <div className="flex items-center gap-3 pt-6 mt-6 border-t border-stone-100 dark:border-stone-800">

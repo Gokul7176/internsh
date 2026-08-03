@@ -36,8 +36,9 @@ export default function SignupPage() {
       await signup(name, email, password);
       success('Account created successfully!', 'Welcome to Lumina');
       router.push('/dashboard');
-    } catch (err: any) {
-      error(err.message || 'Failed to create account.', 'Signup Error');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to create account.';
+      error(message, 'Signup Error');
     } finally {
       setIsLoading(false);
     }

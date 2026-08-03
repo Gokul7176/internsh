@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CartItem, Product, Coupon } from '@/types';
 import { INITIAL_COUPONS } from '@/lib/mockData';
 import { useToast } from './ToastContext';
+import { safeGetStorage, safeSetStorage } from '@/lib/utils';
 
 interface CartContextType {
   cart: CartItem[];
@@ -30,43 +31,25 @@ const COUPON_STORAGE_KEY = 'lumina_cart_coupon';
 const FREE_SHIPPING_THRESHOLD = 50;
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [cart, setCart] = useState<CartItem[]>(() =>
+    safeGetStorage<CartItem[]>(CART_STORAGE_KEY, [])
+  );
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(() =>
+    safeGetStorage<Coupon | null>(COUPON_STORAGE_KEY, null)
+  );
   const { success, error } = useToast();
-
-  // Load cart from localStorage
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-      const storedCoupon = localStorage.getItem(COUPON_STORAGE_KEY);
-      if (storedCart) {
-        try {
-          setCart(JSON.parse(storedCart));
-        } catch (e) {}
-      }
-      if (storedCoupon) {
-        try {
-          setAppliedCoupon(JSON.parse(storedCoupon));
-        } catch (e) {}
-      }
-    }
-  }, []);
 
   // Save cart to localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-    }
+    safeSetStorage(CART_STORAGE_KEY, cart);
   }, [cart]);
 
   // Save coupon to localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (appliedCoupon) {
-        localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(appliedCoupon));
-      } else {
-        localStorage.removeItem(COUPON_STORAGE_KEY);
-      }
+    if (appliedCoupon) {
+      safeSetStorage(COUPON_STORAGE_KEY, appliedCoupon);
+    } else if (typeof window !== 'undefined') {
+      localStorage.removeItem(COUPON_STORAGE_KEY);
     }
   }, [appliedCoupon]);
 
@@ -105,6 +88,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setAppliedCoupon(null);
   };
 
+  // Calculations
+  const itemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const subtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+
   const applyCoupon = (code: string): boolean => {
     const formatted = code.trim().toUpperCase();
     const found = INITIAL_COUPONS.find((c) => c.code === formatted && c.isActive);
@@ -127,10 +114,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const removeCoupon = () => {
     setAppliedCoupon(null);
   };
-
-  // Calculations
-  const itemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-  const subtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
 
   let discount = 0;
   if (appliedCoupon && subtotal >= appliedCoupon.minPurchase) {

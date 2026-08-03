@@ -50,7 +50,7 @@ export function Newsletter() {
           </form>
         ) : (
           <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-emerald-950/80 border border-emerald-700 text-emerald-300 text-sm font-semibold animate-fade-in">
-            <CheckCircle2 className="w-5 h-5" /> You're subscribed! Use promo code <span className="underline font-bold">WELCOME10</span> at checkout.
+            <CheckCircle2 className="w-5 h-5" /> You&apos;re subscribed! Use promo code <span className="underline font-bold">WELCOME10</span> at checkout.
           </div>
         )}
       </div>

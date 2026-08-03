@@ -1,18 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Product, ProductCategory, SkinType, ProductUsage } from '@/types';
+import React, { useState } from 'react';
+import { Product, ProductCategory } from '@/types';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { Upload, X, Plus } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import { cloudinaryService } from '@/services/cloudinaryService';
 import { useToast } from '@/context/ToastContext';
 
 interface ProductFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (productData: any) => Promise<void>;
+  onSubmit: (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   initialData?: Product | null;
 }
 
@@ -33,27 +33,29 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
 
   const { success, error } = useToast();
 
-  useEffect(() => {
-    if (initialData) {
-      setName(initialData.name);
-      setBrand(initialData.brand);
-      setPrice(initialData.price.toString());
-      setOriginalPrice(initialData.originalPrice ? initialData.originalPrice.toString() : '');
-      setStock(initialData.stock.toString());
-      setCategory(initialData.category);
-      setVolume(initialData.volume || '30ml / 1.0 fl. oz.');
-      setDescription(initialData.description);
-      setIngredientsText(initialData.ingredients.join(', '));
-      setBenefitsText(initialData.benefits.join(', '));
-      setImages(initialData.images);
-    } else {
-      setName('');
-      setPrice('48');
-      setStock('30');
-      setDescription('');
-      setImages(['https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=1000']);
-    }
-  }, [initialData, isOpen]);
+  const [prevId, setPrevId] = useState<string | null>(null);
+
+  if (isOpen && initialData && initialData.id !== prevId) {
+    setPrevId(initialData.id);
+    setName(initialData.name);
+    setBrand(initialData.brand);
+    setPrice(initialData.price.toString());
+    setOriginalPrice(initialData.originalPrice ? initialData.originalPrice.toString() : '');
+    setStock(initialData.stock.toString());
+    setCategory(initialData.category);
+    setVolume(initialData.volume || '30ml / 1.0 fl. oz.');
+    setDescription(initialData.description);
+    setIngredientsText(initialData.ingredients.join(', '));
+    setBenefitsText(initialData.benefits.join(', '));
+    setImages(initialData.images);
+  } else if (isOpen && !initialData && prevId !== null) {
+    setPrevId(null);
+    setName('');
+    setPrice('48');
+    setStock('30');
+    setDescription('');
+    setImages(['https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=1000']);
+  }
 
   const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -64,8 +66,9 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
       const url = await cloudinaryService.uploadImage(file);
       setImages((prev) => [...prev, url]);
       success('Product image uploaded via Cloudinary!', 'Image Uploaded');
-    } catch (err) {
-      error('Failed to upload image.', 'Upload Error');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to upload image.';
+      error(message, 'Upload Error');
     } finally {
       setIsUploading(false);
     }
@@ -98,8 +101,9 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
         reviewCount: initialData?.reviewCount || 10,
       });
       onClose();
-    } catch (err) {
-      error('Failed to save product.', 'Error');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to save product.';
+      error(message, 'Error');
     } finally {
       setIsSubmitting(false);
     }

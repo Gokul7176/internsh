@@ -8,32 +8,18 @@ import {
   doc, 
   addDoc, 
   updateDoc, 
-  deleteDoc,
-  query,
-  where,
-  orderBy 
+  deleteDoc
 } from 'firebase/firestore';
+import { safeGetStorage, safeSetStorage } from '@/lib/utils';
 
 const STORAGE_KEY = 'lumina_products';
 
 function getLocalProducts(): Product[] {
-  if (typeof window === 'undefined') return INITIAL_PRODUCTS;
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_PRODUCTS));
-    return INITIAL_PRODUCTS;
-  }
-  try {
-    return JSON.parse(stored);
-  } catch (e) {
-    return INITIAL_PRODUCTS;
-  }
+  return safeGetStorage<Product[]>(STORAGE_KEY, INITIAL_PRODUCTS);
 }
 
-function saveLocalProducts(products: Product[]) {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-  }
+function saveLocalProducts(products: Product[]): void {
+  safeSetStorage(STORAGE_KEY, products);
 }
 
 export const productService = {

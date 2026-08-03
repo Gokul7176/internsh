@@ -20,7 +20,7 @@ export function ShippingProgressBar({ subtotal, threshold, amountNeeded }: Shipp
             <span>Add <strong className="text-amber-700 dark:text-amber-300">{formatPrice(amountNeeded)}</strong> for Free Express Shipping</span>
           ) : (
             <span className="text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
-              <CheckCircle2 className="w-4 h-4" /> You've unlocked Free Express Shipping!
+              <CheckCircle2 className="w-4 h-4" /> You&apos;ve unlocked Free Express Shipping!
             </span>
           )}
         </span>

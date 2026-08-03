@@ -2,27 +2,16 @@ import { db, isFirebaseConfigured } from '@/lib/firebase';
 import { Review } from '@/types';
 import { INITIAL_REVIEWS } from '@/lib/mockData';
 import { collection, getDocs, addDoc, query, where } from 'firebase/firestore';
+import { safeGetStorage, safeSetStorage } from '@/lib/utils';
 
 const STORAGE_KEY = 'lumina_reviews';
 
 function getLocalReviews(): Review[] {
-  if (typeof window === 'undefined') return INITIAL_REVIEWS;
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_REVIEWS));
-    return INITIAL_REVIEWS;
-  }
-  try {
-    return JSON.parse(stored);
-  } catch (e) {
-    return INITIAL_REVIEWS;
-  }
+  return safeGetStorage<Review[]>(STORAGE_KEY, INITIAL_REVIEWS);
 }
 
-function saveLocalReviews(reviews: Review[]) {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
-  }
+function saveLocalReviews(reviews: Review[]): void {
+  safeSetStorage(STORAGE_KEY, reviews);
 }
 
 export const reviewService = {

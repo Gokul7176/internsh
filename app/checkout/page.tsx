@@ -28,17 +28,18 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState('credit_card');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (user?.addresses && user.addresses.length > 0) {
-      const defaultAddr = user.addresses.find((a) => a.isDefault) || user.addresses[0];
-      setFullName(defaultAddr.fullName);
-      setStreet(defaultAddr.street);
-      setCity(defaultAddr.city);
-      setState(defaultAddr.state);
-      setZipCode(defaultAddr.zipCode);
-      setCountry(defaultAddr.country);
-    }
-  }, [user]);
+  const [hasSyncedUser, setHasSyncedUser] = useState(false);
+
+  if (user?.addresses && user.addresses.length > 0 && !hasSyncedUser) {
+    setHasSyncedUser(true);
+    const defaultAddr = user.addresses.find((a) => a.isDefault) || user.addresses[0];
+    setFullName(defaultAddr.fullName);
+    setStreet(defaultAddr.street);
+    setCity(defaultAddr.city);
+    setState(defaultAddr.state);
+    setZipCode(defaultAddr.zipCode);
+    setCountry(defaultAddr.country);
+  }
 
   if (cart.length === 0) {
     return (
@@ -204,7 +205,7 @@ export default function CheckoutPage() {
           </Button>
 
           <p className="text-[11px] text-stone-400 text-center">
-            By clicking Complete Order, you agree to Lumina Skincare’s Terms of Service and 30-Day Money Back Guarantee.
+            By clicking Complete Order, you agree to Lumina Skincare&apos;s Terms of Service and 30-Day Money Back Guarantee.
           </p>
         </div>
       </form>

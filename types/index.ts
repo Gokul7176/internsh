@@ -180,3 +180,42 @@ export interface ChatMessage {
   timestamp: string;
   suggestedProducts?: Product[];
 }
+
+// ==========================================
+// Generic API & Service Response Interfaces
+// ==========================================
+export interface ErrorResponse {
+  success: false;
+  error: string;
+  code?: string;
+  details?: unknown;
+}
+
+export interface SuccessResponse<T> {
+  success: true;
+  data: T;
+  message?: string;
+}
+
+export type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;
+
+export interface ServiceResultSuccess<T> {
+  success: true;
+  data: T;
+}
+
+export interface ServiceResultError {
+  success: false;
+  error: string;
+}
+
+export type ServiceResult<T> = ServiceResultSuccess<T> | ServiceResultError;
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
+

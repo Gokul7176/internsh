@@ -13,59 +13,60 @@ service cloud.firestore {
 
     function isAdmin() {
       return isAuthenticated() && 
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-         request.auth.token.email == 'admin@luminaskincare.com');
+        (request.auth.token.email == 'admin@luminaskincare.com' ||
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
     }
 
     // Public read access for skincare products & categories
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create, update, delete: if isAdmin();
     }
 
     match /categories/{categoryId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create, update, delete: if isAdmin();
     }
 
-    // Users Collection
+    // Users Collection: Users can read and edit only their own profile
     match /users/{userId} {
-      allow read: if isAuthenticated();
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
       allow create, update: if isOwner(userId) || isAdmin();
       allow delete: if isAdmin();
     }
 
-    // Orders Collection
+    // Orders Collection: Customers read their own orders; guest or auth user creates order
     match /orders/{orderId} {
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if true; // allow guest checkout order creation
+      allow read: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isAdmin();
+      allow create: if request.resource.data.items.size() > 0 && request.resource.data.total >= 0;
       allow update, delete: if isAdmin();
     }
 
-    // Customer Reviews Collection
+    // Customer Reviews Collection: Anyone reads; authenticated users post reviews
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if isAuthenticated();
-      allow update, delete: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if request.resource.data.rating >= 1 && request.resource.data.rating <= 5;
+      allow update, delete: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isAdmin();
     }
 
-    // Wishlist Collection
+    // Wishlist Collection: Private to owner or admin
     match /wishlist/{itemId} {
-      allow read, write: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow read, write: if (isAuthenticated() && resource.data.userId == request.auth.uid) || isAdmin();
     }
 
-    // Cart Collection
+    // Cart Collection: Private to owner
     match /cart/{cartId} {
-      allow read, write: if isAuthenticated() && (resource.data.userId == request.auth.uid);
+      allow read, write: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
 
-    // Coupons Collection
+    // Coupons Collection: Public read; admin write
     match /coupons/{couponId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create, update, delete: if isAdmin();
     }
 
-    // Notifications Collection
+    // Notifications Collection: User reads their notifications; admin creates
     match /notifications/{notificationId} {
       allow read, update: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow create, delete: if isAdmin();

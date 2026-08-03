@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { Lock, Mail, User, ShieldAlert } from 'lucide-react';
+import { Lock, Mail, ShieldAlert } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,8 +30,9 @@ export default function LoginPage() {
       await login(email, password);
       success('Logged in successfully!', 'Welcome Back');
       router.push('/dashboard');
-    } catch (err: any) {
-      error(err.message || 'Failed to sign in.', 'Auth Error');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to sign in.';
+      error(message, 'Auth Error');
     } finally {
       setIsLoading(false);
     }
@@ -42,8 +43,9 @@ export default function LoginPage() {
       await googleSignIn();
       success('Signed in with Google!', 'Welcome');
       router.push('/dashboard');
-    } catch (err: any) {
-      error('Google sign in failed.', 'Error');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Google sign in failed.';
+      error(message, 'Error');
     }
   };
 
@@ -131,7 +133,7 @@ export default function LoginPage() {
       </div>
 
       <p className="text-center text-xs text-stone-500">
-        Don't have an account yet?{' '}
+        Don&apos;t have an account yet?{' '}
         <Link href="/auth/signup" className="font-bold text-amber-700 dark:text-amber-400 hover:underline">
           Create Account
         </Link>

@@ -1,24 +1,16 @@
 import { db, isFirebaseConfigured } from '@/lib/firebase';
 import { Order, OrderStatus, OrderTimelineStep } from '@/types';
-import { collection, getDocs, getDoc, doc, addDoc, updateDoc, query, where, orderBy } from 'firebase/firestore';
+import { collection, getDocs, getDoc, doc, addDoc, updateDoc, query, where } from 'firebase/firestore';
+import { safeGetStorage, safeSetStorage } from '@/lib/utils';
 
 const STORAGE_KEY = 'lumina_orders';
 
 function getLocalOrders(): Order[] {
-  if (typeof window === 'undefined') return [];
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) return [];
-  try {
-    return JSON.parse(stored);
-  } catch (e) {
-    return [];
-  }
+  return safeGetStorage<Order[]>(STORAGE_KEY, []);
 }
 
-function saveLocalOrders(orders: Order[]) {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
-  }
+function saveLocalOrders(orders: Order[]): void {
+  safeSetStorage(STORAGE_KEY, orders);
 }
 
 export function buildDefaultTimeline(createdAt: string): OrderTimelineStep[] {

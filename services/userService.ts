@@ -1,6 +1,7 @@
 import { db, isFirebaseConfigured } from '@/lib/firebase';
 import { UserProfile, UserAddress } from '@/types';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { safeGetStorage, safeSetStorage } from '@/lib/utils';
 
 const PROFILE_KEY = 'lumina_user_profile';
 
@@ -18,15 +19,7 @@ export const userService = {
       }
     }
 
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(PROFILE_KEY + '_' + uid);
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch (e) {}
-      }
-    }
-    return null;
+    return safeGetStorage<UserProfile | null>(PROFILE_KEY + '_' + uid, null);
   },
 
   async createUserProfile(profile: UserProfile): Promise<UserProfile> {
@@ -39,9 +32,7 @@ export const userService = {
       }
     }
 
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(PROFILE_KEY + '_' + profile.uid, JSON.stringify(profile));
-    }
+    safeSetStorage(PROFILE_KEY + '_' + profile.uid, profile);
     return profile;
   },
 
@@ -57,12 +48,10 @@ export const userService = {
       }
     }
 
-    let current = await this.getUserProfile(uid);
+    const current = await this.getUserProfile(uid);
     if (current) {
       const updated = { ...current, ...updates, updatedAt: timestamp };
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(PROFILE_KEY + '_' + uid, JSON.stringify(updated));
-      }
+      safeSetStorage(PROFILE_KEY + '_' + uid, updated);
       return updated;
     }
     return null;

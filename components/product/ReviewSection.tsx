@@ -11,6 +11,7 @@ import { CheckCircle2, MessageSquarePlus } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 interface ReviewSectionProps {
   productId: string;
@@ -29,13 +30,19 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
   const [comment, setComment] = useState<string>('');
 
   useEffect(() => {
+    let isMounted = true;
     async function loadReviews() {
       setLoading(true);
       const data = await reviewService.getProductReviews(productId);
-      setReviews(data);
-      setLoading(false);
+      if (isMounted) {
+        setReviews(data);
+        setLoading(false);
+      }
     }
     loadReviews();
+    return () => {
+      isMounted = false;
+    };
   }, [productId]);
 
   const avgRating = reviews.length > 0
@@ -87,41 +94,48 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
       </div>
 
       {/* Reviews list */}
-      <div className="space-y-4">
-        {reviews.map((rev) => (
-          <div
-            key={rev.id}
-            className="p-6 rounded-2xl bg-white/70 dark:bg-stone-900/70 border border-stone-200/80 dark:border-stone-800/80 space-y-3"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {rev.userAvatar ? (
-                  <img src={rev.userAvatar} alt={rev.userName} className="w-9 h-9 rounded-full object-cover" />
-                ) : (
-                  <div className="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 font-bold flex items-center justify-center text-xs">
-                    {rev.userName.charAt(0)}
+      {loading ? (
+        <div className="space-y-4">
+          <Skeleton className="h-28 w-full rounded-2xl" />
+          <Skeleton className="h-28 w-full rounded-2xl" />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {reviews.map((rev) => (
+            <div
+              key={rev.id}
+              className="p-6 rounded-2xl bg-white/70 dark:bg-stone-900/70 border border-stone-200/80 dark:border-stone-800/80 space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {rev.userAvatar ? (
+                    <img src={rev.userAvatar} alt={rev.userName} className="w-9 h-9 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 font-bold flex items-center justify-center text-xs">
+                      {rev.userName.charAt(0)}
+                    </div>
+                  )}
+                  <div>
+                    <h5 className="text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                      {rev.userName}
+                      {rev.verifiedPurchase && (
+                        <span className="inline-flex items-center text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                          <CheckCircle2 className="w-3 h-3 mr-0.5" /> Verified Buyer
+                        </span>
+                      )}
+                    </h5>
+                    <p className="text-[10px] text-stone-400">{formatDate(rev.createdAt)}</p>
                   </div>
-                )}
-                <div>
-                  <h5 className="text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                    {rev.userName}
-                    {rev.verifiedPurchase && (
-                      <span className="inline-flex items-center text-[10px] text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
-                        <CheckCircle2 className="w-3 h-3 mr-0.5" /> Verified Buyer
-                      </span>
-                    )}
-                  </h5>
-                  <p className="text-[10px] text-stone-400">{formatDate(rev.createdAt)}</p>
                 </div>
+                <StarRating rating={rev.rating} size="sm" />
               </div>
-              <StarRating rating={rev.rating} size="sm" />
-            </div>
 
-            <h4 className="font-semibold text-sm text-stone-900 dark:text-stone-100">{rev.title}</h4>
-            <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">{rev.comment}</p>
-          </div>
-        ))}
-      </div>
+              <h4 className="font-semibold text-sm text-stone-900 dark:text-stone-100">{rev.title}</h4>
+              <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">{rev.comment}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Write review modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Write a Customer Review">

@@ -1,11 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { Sparkles, Sun, Moon, ArrowRight, CheckCircle2, RefreshCw, ShoppingBag } from 'lucide-react';
 import { SkinType, AIRoutineRecommendation, SkinDiagnosticInput } from '@/types';
-import { generateSkinRecommendation } from '@/lib/gemini';
-import { useProducts } from '@/hooks/useProducts';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { formatPrice } from '@/lib/utils';
@@ -13,16 +10,15 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 
 export default function RecommendationsPage() {
-  const { allProducts } = useProducts();
   const { addToCart } = useCart();
-  const { success } = useToast();
+  const { success, error } = useToast();
 
   const [step, setStep] = useState<number>(1);
   const [skinType, setSkinType] = useState<SkinType>('combination');
   const [ageGroup, setAgeGroup] = useState<string>('25-34');
   const [concerns, setConcerns] = useState<string[]>(['Hyperpigmentation', 'Uneven Texture']);
   const [isSensitive, setIsSensitive] = useState<boolean>(false);
-  const [preferredTexture, setPreferredTexture] = useState<string>('Lightweight Serum & Cream');
+  const [preferredTexture] = useState<string>('Lightweight Serum & Cream');
 
   const [loading, setLoading] = useState<boolean>(false);
   const [recommendation, setRecommendation] = useState<AIRoutineRecommendation | null>(null);
@@ -56,11 +52,21 @@ export default function RecommendationsPage() {
     };
 
     try {
-      const res = await generateSkinRecommendation(input, allProducts);
-      setRecommendation(res);
-      setStep(3); // Result view
-    } catch (e) {
-      console.error(e);
+      const res = await fetch('/api/gemini/recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      });
+      const payload = await res.json();
+      if (payload.success) {
+        setRecommendation(payload.data);
+        setStep(3); // Result view
+      } else {
+        error(payload.error || 'Failed to generate skin recommendation', 'Diagnostic Error');
+      }
+    } catch (e: unknown) {
+      console.error('Recommendation API fetch error:', e);
+      error('Failed to generate recommendation. Please check network connectivity.', 'Connection Error');
     } finally {
       setLoading(false);
     }
@@ -81,7 +87,9 @@ export default function RecommendationsPage() {
         count++;
       }
     });
-    success(`Added routine items to your shopping bag!`, 'Routine Added');
+    if (count > 0) {
+      success(`Added ${count} routine items to your shopping bag!`, 'Routine Added');
+    }
   };
 
   return (
@@ -244,7 +252,7 @@ export default function RecommendationsPage() {
             </div>
 
             <p className="text-sm text-stone-300 leading-relaxed bg-stone-800/60 p-4 rounded-2xl border border-stone-700/60">
-              "{recommendation.expertAdvice}"
+              &quot;{recommendation.expertAdvice}&quot;
             </p>
 
             <div className="flex items-center gap-2 pt-2 text-xs">

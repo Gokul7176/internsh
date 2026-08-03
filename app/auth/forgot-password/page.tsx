@@ -28,8 +28,9 @@ export default function ForgotPasswordPage() {
       await resetPassword(email);
       setSubmitted(true);
       success('Password reset instructions dispatched!', 'Check Email');
-    } catch (err: any) {
-      error('Failed to send reset link.', 'Error');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to send reset link.';
+      error(message, 'Error');
     } finally {
       setIsLoading(false);
     }

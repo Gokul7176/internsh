@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Product, ProductCategory, SkinType } from '@/types';
 import { productService } from '@/services/productService';
 
@@ -27,21 +27,41 @@ export function useProducts(initialCategory: ProductCategory | 'all' = 'all') {
     sortBy: 'newest',
   });
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const data = await productService.getAllProducts();
       setProducts(data);
       setError(null);
-    } catch (err: any) {
-      setError(err.message || 'Failed to load products');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to load products';
+      setError(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchProducts();
+    let isMounted = true;
+    productService.getAllProducts().then(
+      (data) => {
+        if (isMounted) {
+          setProducts(data);
+          setError(null);
+          setLoading(false);
+        }
+      },
+      (err: unknown) => {
+        if (isMounted) {
+          const message = err instanceof Error ? err.message : 'Failed to load products';
+          setError(message);
+          setLoading(false);
+        }
+      }
+    );
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Compute unique brands available
@@ -65,7 +85,11 @@ export function useProducts(initialCategory: ProductCategory | 'all' = 'all') {
         }
 
         // Skin type filter
-        if (filters.skinType !== 'all' && !product.skinType.includes(filters.skinType) && !product.skinType.includes('all')) {
+        if (
+          filters.skinType !== 'all' &&
+          !product.skinType.includes(filters.skinType) &&
+          !product.skinType.includes('all')
+        ) {
           return false;
         }
 

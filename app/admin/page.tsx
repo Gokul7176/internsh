@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { useProducts } from '@/hooks/useProducts';
 import { orderService } from '@/services/orderService';
-import { userService } from '@/services/userService';
 import { productService } from '@/services/productService';
 import { Product, Order, UserProfile, OrderStatus } from '@/types';
 import { StatCards } from '@/components/admin/StatCards';
@@ -16,12 +15,13 @@ import { UserTable } from '@/components/admin/UserTable';
 import { ProductFormModal } from '@/components/admin/ProductFormModal';
 import { Button } from '@/components/ui/Button';
 import { useToast } from '@/context/ToastContext';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { ShieldAlert, Package, ShoppingBag, Users, LayoutDashboard, Plus, Lock } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const { user, isAdmin, setDemoUser } = useAuth();
   const { products, refreshProducts } = useProducts();
-  const { success, error } = useToast();
+  const { success } = useToast();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'users'>('overview');
   const [orders, setOrders] = useState<Order[]>([]);
@@ -33,12 +33,14 @@ export default function AdminDashboardPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
     async function loadAdminData() {
       setLoadingData(true);
       const allOrders = await orderService.getAllOrders();
+      if (!isMounted) return;
       setOrders(allOrders);
 
-      // Dummy users for admin table view
+      // Demo users for admin table view
       const demoUsersList: UserProfile[] = [
         {
           uid: 'user-001',
@@ -72,6 +74,9 @@ export default function AdminDashboardPage() {
       setLoadingData(false);
     }
     loadAdminData();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Gated Access Check
@@ -104,7 +109,7 @@ export default function AdminDashboardPage() {
   const totalRevenue = orders.reduce((acc, o) => acc + o.total, 124500);
   const lowStockCount = products.filter((p) => p.stock < 10).length;
 
-  const handleCreateOrUpdateProduct = async (productData: any) => {
+  const handleCreateOrUpdateProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingProduct) {
       await productService.updateProduct(editingProduct.id, productData);
       success(`Updated product ${productData.name}`, 'Inventory Saved');
@@ -152,7 +157,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-stone-200 dark:border-stone-800 pb-2">
+      <div className="flex items-center gap-2 border-b border-stone-200 dark:border-stone-800 pb-2 overflow-x-auto">
         <button
           onClick={() => setActiveTab('overview')}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all ${
@@ -198,44 +203,53 @@ export default function AdminDashboardPage() {
         </button>
       </div>
 
-      {/* Tab 1: Revenue Overview */}
-      {activeTab === 'overview' && (
-        <div className="space-y-8">
-          <StatCards
-            totalRevenue={totalRevenue}
-            totalOrders={orders.length + 42}
-            totalCustomers={users.length + 120}
-            totalProducts={products.length}
-            lowStockCount={lowStockCount}
-          />
-          <SalesChart products={products} />
+      {loadingData ? (
+        <div className="space-y-4">
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-64 w-full rounded-2xl" />
         </div>
-      )}
+      ) : (
+        <>
+          {/* Tab 1: Revenue Overview */}
+          {activeTab === 'overview' && (
+            <div className="space-y-8">
+              <StatCards
+                totalRevenue={totalRevenue}
+                totalOrders={orders.length + 42}
+                totalCustomers={users.length + 120}
+                totalProducts={products.length}
+                lowStockCount={lowStockCount}
+              />
+              <SalesChart products={products} />
+            </div>
+          )}
 
-      {/* Tab 2: Products */}
-      {activeTab === 'products' && (
-        <ProductTable
-          products={products}
-          onAddProduct={() => {
-            setEditingProduct(null);
-            setIsModalOpen(true);
-          }}
-          onEditProduct={(p) => {
-            setEditingProduct(p);
-            setIsModalOpen(true);
-          }}
-          onDeleteProduct={handleDeleteProduct}
-        />
-      )}
+          {/* Tab 2: Products */}
+          {activeTab === 'products' && (
+            <ProductTable
+              products={products}
+              onAddProduct={() => {
+                setEditingProduct(null);
+                setIsModalOpen(true);
+              }}
+              onEditProduct={(p) => {
+                setEditingProduct(p);
+                setIsModalOpen(true);
+              }}
+              onDeleteProduct={handleDeleteProduct}
+            />
+          )}
 
-      {/* Tab 3: Orders */}
-      {activeTab === 'orders' && (
-        <OrderTable orders={orders} onUpdateStatus={handleUpdateOrderStatus} />
-      )}
+          {/* Tab 3: Orders */}
+          {activeTab === 'orders' && (
+            <OrderTable orders={orders} onUpdateStatus={handleUpdateOrderStatus} />
+          )}
 
-      {/* Tab 4: Users */}
-      {activeTab === 'users' && (
-        <UserTable users={users} />
+          {/* Tab 4: Users */}
+          {activeTab === 'users' && (
+            <UserTable users={users} />
+          )}
+        </>
       )}
 
       {/* Product Form Modal */}

@@ -7,6 +7,7 @@ import { WishlistProvider } from '@/context/WishlistContext';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { SkincareChatbot } from '@/components/ai/SkincareChatbot';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Analytics } from '@vercel/analytics/react';
 
 export const metadata: Metadata = {
@@ -39,19 +40,21 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased bg-cream-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col min-h-screen">
-        <ToastProvider>
-          <AuthProvider>
-            <CartProvider>
-              <WishlistProvider>
-                <Navbar />
-                <main className="flex-1">{children}</main>
-                <Footer />
-                <SkincareChatbot />
-                <Analytics />
-              </WishlistProvider>
-            </CartProvider>
-          </AuthProvider>
-        </ToastProvider>
+        <ErrorBoundary>
+          <ToastProvider>
+            <AuthProvider>
+              <CartProvider>
+                <WishlistProvider>
+                  <Navbar />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                  <SkincareChatbot />
+                  <Analytics />
+                </WishlistProvider>
+              </CartProvider>
+            </AuthProvider>
+          </ToastProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

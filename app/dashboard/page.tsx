@@ -43,22 +43,31 @@ function DashboardContent() {
   const [addressState, setAddressState] = useState('');
   const [addressZip, setAddressZip] = useState('');
 
-  useEffect(() => {
-    if (user) {
-      setDisplayName(user.displayName);
-      setPhone(user.phone || '');
-      setSkinType(user.skinType || 'combination');
-      loadOrders();
-    }
-  }, [user]);
+  const [syncedUserId, setSyncedUserId] = useState<string | null>(null);
 
-  const loadOrders = async () => {
-    if (!user) return;
-    setLoadingOrders(true);
-    const data = await orderService.getUserOrders(user.uid);
-    setOrders(data);
-    setLoadingOrders(false);
-  };
+  if (user && user.uid !== syncedUserId) {
+    setSyncedUserId(user.uid);
+    setDisplayName(user.displayName);
+    setPhone(user.phone || '');
+    setSkinType(user.skinType || 'combination');
+  }
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadOrders() {
+      if (!user) return;
+      setLoadingOrders(true);
+      const data = await orderService.getUserOrders(user.uid);
+      if (isMounted) {
+        setOrders(data);
+        setLoadingOrders(false);
+      }
+    }
+    loadOrders();
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();

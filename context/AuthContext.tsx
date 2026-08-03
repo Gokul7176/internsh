@@ -13,6 +13,7 @@ import {
 import { auth, googleProvider, isFirebaseConfigured } from '@/lib/firebase';
 import { UserProfile, UserRole } from '@/types';
 import { userService } from '@/services/userService';
+import { safeGetStorage, safeSetStorage } from '@/lib/utils';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -29,27 +30,17 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const CURRENT_USER_KEY = 'lumina_current_user';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  // Load stored mock/demo user if available
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('lumina_current_user');
-      if (stored) {
-        try {
-          setUser(JSON.parse(stored));
-        } catch (e) {}
-      }
-    }
-  }, []);
+  const [user, setUser] = useState<UserProfile | null>(() =>
+    safeGetStorage<UserProfile | null>(CURRENT_USER_KEY, null)
+  );
+  const [loading, setLoading] = useState<boolean>(() => Boolean(isFirebaseConfigured()));
 
   useEffect(() => {
     if (!isFirebaseConfigured()) {
-      setLoading(false);
       return;
     }
 
@@ -70,11 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await userService.createUserProfile(profile);
         }
         setUser(profile);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('lumina_current_user', JSON.stringify(profile));
-        }
-      } else {
-        // If not logged into Firebase, preserve local user if manually set
+        safeSetStorage(CURRENT_USER_KEY, profile);
       }
       setLoading(false);
     });
@@ -97,9 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updatedAt: new Date().toISOString(),
       };
       setUser(mockProfile);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('lumina_current_user', JSON.stringify(mockProfile));
-      }
+      safeSetStorage(CURRENT_USER_KEY, mockProfile);
     }
   };
 
@@ -116,6 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
       await userService.createUserProfile(newProfile);
       setUser(newProfile);
+      safeSetStorage(CURRENT_USER_KEY, newProfile);
     } else {
       const mockProfile: UserProfile = {
         uid: 'user-' + Math.random().toString(36).substring(2, 7),
@@ -126,9 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updatedAt: new Date().toISOString(),
       };
       setUser(mockProfile);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('lumina_current_user', JSON.stringify(mockProfile));
-      }
+      safeSetStorage(CURRENT_USER_KEY, mockProfile);
     }
   };
 
@@ -146,9 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updatedAt: new Date().toISOString(),
       };
       setUser(mockProfile);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('lumina_current_user', JSON.stringify(mockProfile));
-      }
+      safeSetStorage(CURRENT_USER_KEY, mockProfile);
     }
   };
 
@@ -159,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setFirebaseUser(null);
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('lumina_current_user');
+      localStorage.removeItem(CURRENT_USER_KEY);
     }
   };
 
@@ -174,9 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const updated = await userService.updateUserProfile(user.uid, updates);
     if (updated) {
       setUser(updated);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('lumina_current_user', JSON.stringify(updated));
-      }
+      safeSetStorage(CURRENT_USER_KEY, updated);
     }
   };
 
@@ -190,9 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       updatedAt: new Date().toISOString(),
     };
     setUser(demoProfile);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('lumina_current_user', JSON.stringify(demoProfile));
-    }
+    safeSetStorage(CURRENT_USER_KEY, demoProfile);
   };
 
   const isAdmin = user?.role === 'admin';

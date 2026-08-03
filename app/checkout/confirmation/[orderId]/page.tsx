@@ -27,7 +27,7 @@ export default function OrderConfirmationPage() {
         origin: { y: 0.6 },
         colors: ['#d97706', '#f59e0b', '#78350f', '#fbbf24'],
       });
-    } catch (e) {}
+    } catch {}
 
     async function loadOrder() {
       if (!orderId) return;

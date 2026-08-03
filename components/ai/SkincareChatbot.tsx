@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, MessageCircle, X, Send, Bot, User, RefreshCw } from 'lucide-react';
+import { Sparkles, X, Send, Bot, RefreshCw } from 'lucide-react';
 import { ChatMessage, Product } from '@/types';
-import { askGeminiChatbot } from '@/lib/gemini';
-import { INITIAL_PRODUCTS } from '@/lib/mockData';
-import { ProductCard } from '@/components/catalog/ProductCard';
+
+import { generateId } from '@/lib/utils';
 
 export function SkincareChatbot() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -37,7 +36,7 @@ export function SkincareChatbot() {
     if (!textToSend.trim() || loading) return;
 
     const userMsg: ChatMessage = {
-      id: 'msg-' + Date.now(),
+      id: 'msg-u-' + generateId(),
       sender: 'user',
       text: textToSend,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -48,17 +47,31 @@ export function SkincareChatbot() {
     setLoading(true);
 
     try {
-      const response = await askGeminiChatbot(textToSend, messages, INITIAL_PRODUCTS);
+      const res = await fetch('/api/gemini/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: textToSend, history: messages }),
+      });
+      const payload = await res.json();
+      const result = payload.success ? payload.data : { text: payload.error || 'Unable to connect to AI assistant.' };
+
       const aiMsg: ChatMessage = {
-        id: 'msg-ai-' + Date.now(),
+        id: 'msg-ai-' + generateId(),
         sender: 'ai',
-        text: response.text,
+        text: result.text,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        suggestedProducts: response.suggestedProducts,
+        suggestedProducts: result.suggestedProducts,
       };
       setMessages((prev) => [...prev, aiMsg]);
-    } catch (e) {
-      console.error(e);
+    } catch (e: unknown) {
+      console.error('Chatbot API fetch error:', e);
+      const errorMsg: ChatMessage = {
+        id: 'msg-err-' + generateId(),
+        sender: 'ai',
+        text: 'Apologies, our AI skincare service is temporarily unavailable. Please try again shortly.',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages((prev) => [...prev, errorMsg]);
     } finally {
       setLoading(false);
     }
@@ -71,6 +84,8 @@ export function SkincareChatbot() {
         onClick={() => setIsOpen(!isOpen)}
         className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-stone-900 dark:bg-amber-500 text-white dark:text-stone-950 shadow-2xl hover:scale-105 transition-transform flex items-center gap-2 group border border-amber-400/40"
         aria-label="Open AI Skincare Assistant"
+        aria-expanded={isOpen}
+        aria-controls="skincare-chatbot-drawer"
       >
         <Sparkles className="w-5 h-5 text-amber-400 dark:text-stone-950 animate-pulse" />
         <span className="text-xs font-bold uppercase tracking-wider hidden sm:inline">Ask Lumina AI</span>
@@ -78,7 +93,12 @@ export function SkincareChatbot() {
 
       {/* Chatbot modal container */}
       {isOpen && (
-        <div className="fixed bottom-24 right-4 sm:right-6 z-50 w-[92vw] sm:w-[420px] h-[550px] bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-stone-200/80 dark:border-stone-800/80 flex flex-col overflow-hidden animate-slide-up">
+        <div
+          id="skincare-chatbot-drawer"
+          role="dialog"
+          aria-label="Lumina AI Skincare Assistant"
+          className="fixed bottom-24 right-4 sm:right-6 z-50 w-[92vw] sm:w-[420px] h-[550px] bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-stone-200/80 dark:border-stone-800/80 flex flex-col overflow-hidden animate-slide-up"
+        >
           {/* Chat Header */}
           <div className="p-4 bg-stone-900 text-white flex items-center justify-between border-b border-stone-800">
             <div className="flex items-center gap-3">
@@ -95,13 +115,14 @@ export function SkincareChatbot() {
             <button
               onClick={() => setIsOpen(false)}
               className="p-1 rounded-full text-stone-400 hover:text-white transition-colors"
+              aria-label="Close Chat"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Messages Stream */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs" aria-live="polite">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -130,15 +151,23 @@ export function SkincareChatbot() {
                         Recommended Catalog Items:
                       </p>
                       <div className="grid grid-cols-1 gap-2">
-                        {msg.suggestedProducts.map((prod) => (
+                        {msg.suggestedProducts.map((prod: Product) => (
                           <div
                             key={prod.id}
                             className="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800"
                           >
-                            <img src={prod.images[0]} alt={prod.name} className="w-10 h-10 object-cover rounded-lg shrink-0" />
+                            <img
+                              src={prod.images?.[0] || 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be'}
+                              alt={prod.name}
+                              className="w-10 h-10 object-cover rounded-lg shrink-0"
+                            />
                             <div className="min-w-0 flex-1">
-                              <h5 className="font-semibold truncate text-[11px] text-stone-900 dark:text-white">{prod.name}</h5>
-                              <p className="text-[10px] font-bold text-amber-700 dark:text-amber-400">${prod.price}</p>
+                              <h5 className="font-semibold truncate text-[11px] text-stone-900 dark:text-white">
+                                {prod.name}
+                              </h5>
+                              <p className="text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                                ${prod.price}
+                              </p>
                             </div>
                           </div>
                         ))}
@@ -185,11 +214,13 @@ export function SkincareChatbot() {
               value={inputQuery}
               onChange={(e) => setInputQuery(e.target.value)}
               className="flex-1 px-4 py-2 text-xs rounded-full bg-stone-100 dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              aria-label="Skincare Question Input"
             />
             <button
               type="submit"
               disabled={!inputQuery.trim() || loading}
               className="p-2.5 rounded-full bg-amber-600 text-white disabled:opacity-50 hover:bg-amber-700 transition-colors shrink-0"
+              aria-label="Send Question"
             >
               <Send className="w-3.5 h-3.5" />
             </button>

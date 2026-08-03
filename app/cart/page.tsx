@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ShoppingBag, ArrowLeft, Trash2, Sparkles } from 'lucide-react';
+import { ShoppingBag, ArrowLeft, Trash2 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { CartItem } from '@/components/cart/CartItem';
 import { OrderSummary } from '@/components/cart/OrderSummary';

@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Mail, ShieldCheck, Truck, RefreshCw, Leaf, Globe, MessageCircle, Share2 } from 'lucide-react';
+import { ShieldCheck, Truck, RefreshCw, Leaf, Globe, MessageCircle, Share2 } from 'lucide-react';
 
 export function Footer() {
   return (

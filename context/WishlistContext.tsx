@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '@/types';
 import { useToast } from './ToastContext';
+import { safeGetStorage, safeSetStorage } from '@/lib/utils';
 
 interface WishlistContextType {
   wishlist: Product[];
@@ -18,24 +19,13 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 const WISHLIST_STORAGE_KEY = 'lumina_wishlist';
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
-  const [wishlist, setWishlist] = useState<Product[]>([]);
-  const { success, error } = useToast();
+  const [wishlist, setWishlist] = useState<Product[]>(() =>
+    safeGetStorage<Product[]>(WISHLIST_STORAGE_KEY, [])
+  );
+  const { success } = useToast();
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem(WISHLIST_STORAGE_KEY);
-      if (stored) {
-        try {
-          setWishlist(JSON.parse(stored));
-        } catch (e) {}
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlist));
-    }
+    safeSetStorage(WISHLIST_STORAGE_KEY, wishlist);
   }, [wishlist]);
 
   const isInWishlist = (productId: string): boolean => {
@@ -65,7 +55,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     const ids = wishlist.map((p) => p.id).join(',');
     const url = `${window.location.origin}/catalog?wishlist=${encodeURIComponent(ids)}`;
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
+      navigator.clipboard.writeText(url).catch(() => {});
       success('Wishlist link copied to clipboard!', 'Share Wishlist');
     }
     return url;
