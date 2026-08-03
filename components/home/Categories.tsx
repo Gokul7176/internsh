@@ -1,7 +1,10 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { ProductCategory } from '@/types';
 import { ArrowUpRight } from 'lucide-react';
+import { SafeImage } from '@/components/ui/SafeImage';
 
 interface CategoryItem {
   id: ProductCategory;
@@ -58,20 +61,20 @@ const CATEGORIES: CategoryItem[] = [
 
 export function Categories() {
   return (
-    <section className="py-20 bg-cream-50/50 dark:bg-stone-900/40">
+    <section className="py-20 bg-cream-50/50 dark:bg-[#151515]/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12 gap-4">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+            <span className="text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-[#D4AF37]">
               Curated Collections
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl font-light text-stone-900 dark:text-cream-50 mt-1">
+            <h2 className="font-serif text-3xl sm:text-4xl font-light text-stone-900 dark:text-[#F5F5F5] mt-1">
               Shop by Skincare Category
             </h2>
           </div>
           <Link
             href="/catalog"
-            className="text-sm font-semibold text-stone-900 dark:text-stone-100 hover:text-amber-600 flex items-center gap-1 group"
+            className="text-sm font-semibold text-stone-900 dark:text-[#F5F5F5] hover:text-[#D4AF37] flex items-center gap-1 group transition-colors"
           >
             View All Categories <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
@@ -82,18 +85,19 @@ export function Categories() {
             <Link
               key={cat.id}
               href={`/catalog?category=${cat.id}`}
-              className="group relative rounded-3xl overflow-hidden h-72 border border-stone-200/80 dark:border-stone-800/80 shadow-sm hover:shadow-xl transition-all duration-500"
+              className="group relative rounded-3xl overflow-hidden h-72 border border-stone-200/80 dark:border-[#2A2A2A] shadow-sm hover:shadow-xl transition-all duration-500"
             >
-              <img
+              <SafeImage
                 src={cat.image}
                 alt={cat.name}
+                fill
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 brightness-95"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/40 to-transparent p-6 flex flex-col justify-end text-white">
-                <span className="text-xs font-semibold text-amber-300 uppercase tracking-wider mb-1">
+              <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/40 to-transparent p-6 flex flex-col justify-end text-white z-10">
+                <span className="text-xs font-semibold text-[#D4AF37] uppercase tracking-wider mb-1">
                   {cat.count}
                 </span>
-                <h3 className="font-serif text-2xl font-normal group-hover:text-amber-200 transition-colors flex items-center justify-between">
+                <h3 className="font-serif text-2xl font-normal group-hover:text-[#E7C765] transition-colors flex items-center justify-between">
                   {cat.name}
                   <ArrowUpRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </h3>

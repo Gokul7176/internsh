@@ -202,8 +202,8 @@ export default function ProductDetailPage() {
             {/* Shipping & Guarantee highlights */}
             <div className="grid grid-cols-2 gap-3 pt-2 text-xs text-stone-500">
               <div className="flex items-center gap-2">
-                <Truck className="w-4 h-4 text-amber-600" />
-                <span>Free Express Shipping $50+</span>
+                <Truck className="w-4 h-4 text-amber-600 dark:text-[#D4AF37]" />
+                <span className="dark:text-[#A0A0A0]">Free Express Shipping ₹2,500+</span>
               </div>
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-amber-600" />

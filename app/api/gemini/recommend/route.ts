@@ -7,6 +7,7 @@ import { apiSuccess, apiError } from '@/lib/apiResponse';
 import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
+  const startTime = Date.now();
   try {
     const ip = req.headers.get('x-forwarded-for') || 'anon-client';
     const rateLimit = checkRateLimit(`recommend-${ip}`, { maxRequests: 15, intervalMs: 60_000 });
@@ -19,13 +20,15 @@ export async function POST(req: NextRequest) {
     const validation = SkinDiagnosticInputSchema.safeParse(body);
 
     if (!validation.success) {
-      return apiError('Invalid diagnostic input payload', 400, validation.error.format());
+      return apiError('Invalid skin diagnostic input payload', 400, validation.error.format());
     }
 
     const recommendation = await generateSkinRecommendation(validation.data, INITIAL_PRODUCTS);
+
+    logger.info(`API /api/gemini/recommend processed in ${Date.now() - startTime}ms`);
     return apiSuccess(recommendation);
   } catch (error: unknown) {
-    logger.error('Failed to generate skin recommendation', error);
+    logger.error('Failed to generate skin recommendation endpoint', error);
     const message = error instanceof Error ? error.message : 'Failed to generate skin recommendation';
     return apiError(message, 500);
   }

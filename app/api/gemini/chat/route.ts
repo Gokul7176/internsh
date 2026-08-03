@@ -7,6 +7,7 @@ import { apiSuccess, apiError } from '@/lib/apiResponse';
 import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
+  const startTime = Date.now();
   try {
     const ip = req.headers.get('x-forwarded-for') || 'anon-client';
     const rateLimit = checkRateLimit(`chat-${ip}`, { maxRequests: 30, intervalMs: 60_000 });
@@ -19,15 +20,16 @@ export async function POST(req: NextRequest) {
     const validation = AIChatRequestSchema.safeParse(body);
 
     if (!validation.success) {
-      return apiError('Invalid request payload', 400, validation.error.format());
+      return apiError('Invalid chat request payload', 400, validation.error.format());
     }
 
-    const { query, history } = validation.data;
-    const result = await askGeminiChatbot(query, history || [], INITIAL_PRODUCTS);
+    const { query, history, userProfile } = validation.data;
+    const result = await askGeminiChatbot(query, history || [], INITIAL_PRODUCTS, userProfile);
 
+    logger.info(`API /api/gemini/chat processed in ${Date.now() - startTime}ms`);
     return apiSuccess(result);
   } catch (error: unknown) {
-    logger.error('Failed to process AI chat query', error);
+    logger.error('Failed to process AI chat query endpoint', error);
     const message = error instanceof Error ? error.message : 'Failed to process AI chat query';
     return apiError(message, 500);
   }

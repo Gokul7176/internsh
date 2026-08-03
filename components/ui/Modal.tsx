@@ -36,14 +36,15 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'md' }: Mod
   return (
     <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in">
       <div
-        className={`w-full ${widthMap[maxWidth]} bg-white dark:bg-stone-900 rounded-3xl shadow-2xl border border-stone-200 dark:border-stone-800 p-6 relative overflow-hidden transition-all duration-300 transform scale-100 max-h-[90vh] flex flex-col`}
+        className={`w-full ${widthMap[maxWidth]} bg-white dark:bg-[#151515] rounded-3xl shadow-2xl border border-stone-200 dark:border-[#2A2A2A] p-6 relative overflow-hidden transition-all duration-300 transform scale-100 max-h-[90vh] flex flex-col`}
       >
         {title && (
-          <div className="flex items-center justify-between pb-4 border-b border-stone-200 dark:border-stone-800 mb-4">
-            <h3 className="text-xl font-semibold text-stone-900 dark:text-white">{title}</h3>
+          <div className="flex items-center justify-between pb-4 border-b border-stone-200 dark:border-[#2A2A2A] mb-4">
+            <h3 className="text-xl font-semibold text-stone-900 dark:text-[#F5F5F5]">{title}</h3>
             <button
               onClick={onClose}
-              className="p-1 rounded-full text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
+              aria-label="Close dialog"
+              className="p-1 rounded-full text-stone-400 hover:text-stone-700 dark:hover:text-[#F5F5F5] transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -52,7 +53,8 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'md' }: Mod
         {!title && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
+            aria-label="Close dialog"
+            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-stone-100 dark:bg-[#1B1B1B] text-stone-500 hover:text-stone-900 dark:hover:text-[#F5F5F5] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>

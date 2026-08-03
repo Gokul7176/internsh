@@ -27,18 +27,18 @@ export function OrderTable({ orders, onUpdateStatus }: OrderTableProps) {
   };
 
   return (
-    <div className="p-6 rounded-3xl bg-white/80 dark:bg-stone-900/80 border border-stone-200/80 dark:border-stone-800/80 backdrop-blur-md shadow-sm space-y-6">
+    <div className="p-6 rounded-3xl bg-white/80 dark:bg-[#151515] border border-stone-200/80 dark:border-[#2A2A2A] backdrop-blur-md shadow-sm space-y-6">
       <div>
-        <h3 className="font-serif text-xl font-semibold text-stone-900 dark:text-cream-50">
+        <h3 className="font-serif text-xl font-semibold text-stone-900 dark:text-[#F5F5F5]">
           Customer Order Fulfillment ({orders.length})
         </h3>
-        <p className="text-xs text-stone-500">Track shipments, manage order timelines, and update dispatch status</p>
+        <p className="text-xs text-stone-500 dark:text-[#777777]">Track shipments, manage order timelines, and update dispatch status</p>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-stone-200 dark:border-stone-800 text-[11px] font-bold uppercase tracking-wider text-stone-500">
+            <tr className="border-b border-stone-200 dark:border-[#2A2A2A] text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-[#A0A0A0]">
               <th className="py-3 px-4">Order ID</th>
               <th className="py-3 px-4">Customer</th>
               <th className="py-3 px-4">Items Count</th>
@@ -48,29 +48,30 @@ export function OrderTable({ orders, onUpdateStatus }: OrderTableProps) {
               <th className="py-3 px-4 text-right">Update Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-100 dark:divide-stone-800/60 text-xs">
+          <tbody className="divide-y divide-stone-100 dark:divide-[#2A2A2A] text-xs">
             {orders.map((o) => (
-              <tr key={o.id} className="hover:bg-stone-50/50 dark:hover:bg-stone-800/40 transition-colors">
-                <td className="py-3 px-4 font-mono font-bold text-amber-700 dark:text-amber-400">
+              <tr key={o.id} className="hover:bg-stone-50/50 dark:hover:bg-[#1B1B1B] transition-colors">
+                <td className="py-3 px-4 font-mono font-bold text-amber-700 dark:text-[#D4AF37]">
                   {o.id}
                 </td>
                 <td className="py-3 px-4">
-                  <div className="font-semibold text-stone-900 dark:text-stone-100">{o.customerName}</div>
-                  <div className="text-[10px] text-stone-400">{o.customerEmail}</div>
+                  <div className="font-semibold text-stone-900 dark:text-[#F5F5F5]">{o.customerName}</div>
+                  <div className="text-[10px] text-stone-400 dark:text-[#777777]">{o.customerEmail}</div>
                 </td>
-                <td className="py-3 px-4 font-medium text-stone-700 dark:text-stone-300">
+                <td className="py-3 px-4 font-medium text-stone-700 dark:text-[#A0A0A0]">
                   {o.items.reduce((acc, i) => acc + i.quantity, 0)} items
                 </td>
-                <td className="py-3 px-4 font-bold text-stone-900 dark:text-white">
+                <td className="py-3 px-4 font-bold text-stone-900 dark:text-[#F5F5F5]">
                   {formatPrice(o.total)}
                 </td>
                 <td className="py-3 px-4">{getStatusBadge(o.status)}</td>
-                <td className="py-3 px-4 text-stone-500">{formatDate(o.createdAt)}</td>
+                <td className="py-3 px-4 text-stone-500 dark:text-[#777777]">{formatDate(o.createdAt)}</td>
                 <td className="py-3 px-4 text-right">
                   <select
                     value={o.status}
                     onChange={(e) => onUpdateStatus(o.id, e.target.value as OrderStatus)}
-                    className="px-2.5 py-1 text-xs rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    aria-label={`Update status for order ${o.id}`}
+                    className="px-2.5 py-1 text-xs rounded-xl border border-stone-300 dark:border-[#2A2A2A] bg-white dark:bg-[#1B1B1B] text-stone-900 dark:text-[#F5F5F5] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
                   >
                     <option value="placed">Placed</option>
                     <option value="packed">Packed</option>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
@@ -9,7 +9,7 @@ import { orderService } from '@/services/orderService';
 import { OrderSummary } from '@/components/cart/OrderSummary';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { ShieldCheck, Truck, CreditCard, Lock, Home } from 'lucide-react';
+import { CreditCard, Lock, Home, Truck } from 'lucide-react';
 import { UserAddress } from '@/types';
 
 export default function CheckoutPage() {
@@ -98,6 +98,7 @@ export default function CheckoutPage() {
       success('Order placed successfully!', 'Confirmation');
       router.push(`/checkout/confirmation/${order.id}`);
     } catch (err) {
+      console.error('Checkout error:', err);
       error('Failed to place order. Please try again.', 'Order Error');
     } finally {
       setIsSubmitting(false);

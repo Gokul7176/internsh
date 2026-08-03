@@ -9,21 +9,22 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/context/ToastContext';
 import { orderService } from '@/services/orderService';
 import { userService } from '@/services/userService';
-import { Order, Product, SkinType } from '@/types';
+import { Order, SkinType } from '@/types';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
 import { ProductCard } from '@/components/catalog/ProductCard';
 import { ProductCardSkeleton } from '@/components/ui/Skeleton';
-import { User, ShoppingBag, Heart, MapPin, Share2, RefreshCw, CheckCircle2, ChevronRight, ShieldAlert } from 'lucide-react';
+import { SafeImage } from '@/components/ui/SafeImage';
+import { User, ShoppingBag, Heart, MapPin, Share2, RefreshCw, ChevronRight, ShieldAlert } from 'lucide-react';
 
 function DashboardContent() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || 'profile';
 
   const { user, updateProfile, isAdmin, logout, setDemoUser } = useAuth();
-  const { wishlist, removeFromWishlist, shareWishlistLink } = useWishlist();
+  const { wishlist, shareWishlistLink } = useWishlist();
   const { addToCart } = useCart();
   const { success, error } = useToast();
 
@@ -76,6 +77,7 @@ function DashboardContent() {
       await updateProfile({ displayName, phone, skinType });
       success('Your profile details have been saved!', 'Profile Updated');
     } catch (err) {
+      console.error('Profile update error:', err);
       error('Failed to update profile.', 'Error');
     } finally {
       setIsUpdating(false);
@@ -103,6 +105,7 @@ function DashboardContent() {
       setAddressState('');
       setAddressZip('');
     } catch (err) {
+      console.error('Address save error:', err);
       error('Failed to save address.', 'Error');
     }
   };
@@ -263,11 +266,16 @@ function DashboardContent() {
       {/* Tab Content 2: Order History */}
       {activeTab === 'orders' && (
         <div className="space-y-6">
-          {orders.length === 0 ? (
-            <div className="text-center py-16 p-8 rounded-3xl bg-white/60 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800/80 space-y-4">
-              <ShoppingBag className="w-12 h-12 text-stone-300 mx-auto" />
-              <h3 className="font-serif text-2xl text-stone-900 dark:text-white">No Orders Placed Yet</h3>
-              <p className="text-xs text-stone-500">Explore our luxury skincare catalog to place your first order.</p>
+          {loadingOrders ? (
+            <div className="space-y-4">
+              <ProductCardSkeleton />
+              <ProductCardSkeleton />
+            </div>
+          ) : orders.length === 0 ? (
+            <div className="text-center py-16 p-8 rounded-3xl bg-white/60 dark:bg-[#151515] border border-stone-200/80 dark:border-[#2A2A2A] space-y-4">
+              <ShoppingBag className="w-12 h-12 text-stone-300 dark:text-[#777777] mx-auto" />
+              <h3 className="font-serif text-2xl text-stone-900 dark:text-[#F5F5F5]">No Orders Placed Yet</h3>
+              <p className="text-xs text-stone-500 dark:text-[#A0A0A0]">Explore our luxury skincare catalog to place your first order.</p>
               <Link href="/catalog">
                 <Button variant="gold" size="sm">Start Shopping</Button>
               </Link>
@@ -296,11 +304,13 @@ function DashboardContent() {
                 {/* Items in order */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {o.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-2.5 rounded-2xl bg-stone-50 dark:bg-stone-800/50">
-                      <img src={item.productImage} alt={item.productName} className="w-12 h-12 object-cover rounded-xl shrink-0" />
+                    <div key={idx} className="flex items-center gap-3 p-2.5 rounded-2xl bg-stone-50 dark:bg-[#1B1B1B] border dark:border-[#2A2A2A]">
+                      <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                        <SafeImage src={item.productImage} alt={item.productName} fill className="object-cover" />
+                      </div>
                       <div className="min-w-0 flex-1">
-                        <h5 className="text-xs font-semibold text-stone-900 dark:text-stone-100 truncate">{item.productName}</h5>
-                        <p className="text-[10px] text-stone-400">Qty: {item.quantity} • {formatPrice(item.price)}</p>
+                        <h5 className="text-xs font-semibold text-stone-900 dark:text-[#F5F5F5] truncate">{item.productName}</h5>
+                        <p className="text-[10px] text-stone-400 dark:text-[#777777]">Qty: {item.quantity} • {formatPrice(item.price)}</p>
                       </div>
                     </div>
                   ))}

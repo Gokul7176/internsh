@@ -23,7 +23,7 @@ export function Footer() {
           </div>
           <div>
             <h4 className="text-sm font-semibold text-white">Eco-Luxe Express</h4>
-            <p className="text-xs text-stone-400">Free shipping on orders $50+</p>
+            <p className="text-xs text-stone-400">Free shipping on orders ₹2,500+</p>
           </div>
         </div>
 

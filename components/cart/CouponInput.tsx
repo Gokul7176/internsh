@@ -24,12 +24,12 @@ export function CouponInput() {
           <Tag className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           <span className="font-bold text-emerald-900 dark:text-emerald-200">{appliedCoupon.code}</span>
           <span className="text-emerald-700 dark:text-emerald-300">
-            ({appliedCoupon.discountPercent ? `${appliedCoupon.discountPercent}% OFF` : `$${appliedCoupon.discountAmount} OFF`})
+            ({appliedCoupon.discountPercent ? `${appliedCoupon.discountPercent}% OFF` : `₹${appliedCoupon.discountAmount} OFF`})
           </span>
         </div>
         <button
           onClick={removeCoupon}
-          className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 p-1"
+          className="text-stone-400 hover:text-stone-700 dark:hover:text-[#F5F5F5] p-1"
           aria-label="Remove promo code"
         >
           <X className="w-4 h-4" />
@@ -41,13 +41,13 @@ export function CouponInput() {
   return (
     <form onSubmit={handleApply} className="flex gap-2">
       <div className="relative flex-1">
-        <Tag className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+        <Tag className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 dark:text-[#777777]" />
         <input
           type="text"
           placeholder="Promo code (e.g. GLOW20)"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 uppercase focus:outline-none focus:ring-2 focus:ring-amber-500"
+          className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-stone-300 dark:border-[#2A2A2A] bg-white dark:bg-[#1B1B1B] text-stone-900 dark:text-[#F5F5F5] placeholder-stone-400 dark:placeholder-[#777777] uppercase focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
         />
       </div>
       <Button type="submit" variant="secondary" size="sm" className="shrink-0">

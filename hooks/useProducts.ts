@@ -22,7 +22,7 @@ export function useProducts(initialCategory: ProductCategory | 'all' = 'all') {
     brand: 'all',
     skinType: 'all',
     minPrice: 0,
-    maxPrice: 150,
+    maxPrice: 5000,
     search: '',
     sortBy: 'newest',
   });
@@ -135,7 +135,7 @@ export function useProducts(initialCategory: ProductCategory | 'all' = 'all') {
       brand: 'all',
       skinType: 'all',
       minPrice: 0,
-      maxPrice: 150,
+      maxPrice: 5000,
       search: '',
       sortBy: 'newest',
     });

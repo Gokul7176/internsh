@@ -5,13 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(price: number): string {
-  if (typeof price !== 'number' || isNaN(price)) return '$0.00';
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(price);
-}
+export { formatPrice } from '../utils/currency';
 
 export function formatDate(dateString: string): string {
   if (!dateString) return '';

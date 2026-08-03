@@ -188,23 +188,69 @@ export const SkinDiagnosticInputSchema = z.object({
   skinType: SkinTypeSchema,
   ageGroup: z.string().min(1),
   primaryConcerns: z.array(z.string()).min(1, 'Select at least one skin concern'),
+  secondaryConcerns: z.array(z.string()).optional(),
   isSensitive: z.boolean(),
   preferredTexture: z.string().min(1),
+  budget: z.number().positive().optional(),
+  routinePreference: z.string().optional(),
+  allergies: z.string().optional(),
+  goals: z.string().optional(),
 });
 
 export const AIRoutineStepSchema = z.object({
   step: z.number().int().positive(),
-  title: z.string().min(1),
-  productCategory: z.string().min(1),
+  title: z.string().optional(),
+  productCategory: z.string().optional(),
   recommendedProductId: z.string().optional(),
-  explanation: z.string().min(1),
+  productId: z.string().optional(),
+  productName: z.string().optional(),
+  explanation: z.string().optional(),
+  reason: z.string().optional(),
+  estimatedTime: z.string().optional(),
+});
+
+export const ClinicalIngredientSchema = z.object({
+  name: z.string().min(1),
+  mechanism: z.string().optional(),
+  benefits: z.string().optional(),
+  compatibility: z.string().optional(),
+  possibleIrritationNotes: z.string().optional(),
+  reason: z.string().optional(),
+});
+
+export const ClinicalTimelineSchema = z.object({
+  week1: z.string().optional(),
+  week2: z.string().optional(),
+  week4: z.string().optional(),
+  week8: z.string().optional(),
+  maintenance: z.string().optional(),
+});
+
+export const ClinicalConfidenceSchema = z.object({
+  confidenceScore: z.number().min(0).max(100),
+  matchReasons: z.array(z.string()),
 });
 
 export const GeminiRecommendationOutputSchema = z.object({
+  summary: z.string().optional(),
+  skinAnalysis: z.string().min(1),
   morningRoutine: z.array(AIRoutineStepSchema),
-  eveningRoutine: z.array(AIRoutineStepSchema),
-  expertAdvice: z.string().min(1),
-  suggestedIngredients: z.array(z.string()),
+  eveningRoutine: z.array(AIRoutineStepSchema).optional(),
+  nightRoutine: z.array(AIRoutineStepSchema).optional(),
+  recommendedIngredients: z.array(z.union([z.string(), ClinicalIngredientSchema])),
+  whyTheseProducts: z.string().optional(),
+  expertAdvice: z.string().optional(),
+  lifestyleTips: z.array(z.string()).optional(),
+  ingredientInteractionNotes: z.string().optional(),
+  expectedTimeline: ClinicalTimelineSchema.optional(),
+  recommendationConfidence: ClinicalConfidenceSchema.optional(),
+  clarifyingQuestion: z.string().nullable().optional(),
+});
+
+export const GeminiChatOutputSchema = z.object({
+  text: z.string().min(1),
+  recommendedProductIds: z.array(z.string()).optional(),
+  structuredAnalysis: GeminiRecommendationOutputSchema.optional(),
 });
 
 export const ChatMessageSchema = z.object({
@@ -218,6 +264,15 @@ export const ChatMessageSchema = z.object({
 export const AIChatRequestSchema = z.object({
   query: z.string().min(1, 'Query cannot be empty').max(1000, 'Query exceeds maximum length'),
   history: z.array(ChatMessageSchema).optional(),
+  userProfile: z
+    .object({
+      skinType: SkinTypeSchema.optional(),
+      primaryConcerns: z.array(z.string()).optional(),
+      ageGroup: z.string().optional(),
+      isSensitive: z.boolean().optional(),
+      budget: z.number().optional(),
+    })
+    .optional(),
 });
 
 // ==========================================

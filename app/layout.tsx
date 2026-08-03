@@ -39,7 +39,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased bg-cream-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col min-h-screen">
+      <body className="antialiased bg-cream-50 dark:bg-[#0B0B0C] text-stone-900 dark:text-[#F5F5F5] flex flex-col min-h-screen">
         <ErrorBoundary>
           <ToastProvider>
             <AuthProvider>

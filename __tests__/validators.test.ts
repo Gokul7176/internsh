@@ -38,6 +38,30 @@ describe('Zod Validation Schemas', () => {
     const result = AIChatRequestSchema.safeParse(validQuery);
     expect(result.success).toBe(true);
   });
+
+  it('validates product schema', () => {
+    const sampleProduct = {
+      id: 'lumina-001',
+      name: 'Hydrating Cleanser',
+      brand: 'Lumina',
+      price: 1299,
+      rating: 4.9,
+      reviewCount: 10,
+      stock: 20,
+      category: 'cleanser',
+      skinType: ['dry'],
+      images: ['https://images.unsplash.com/photo-1556228720-195a672e8a03'],
+      description: 'Cleanser',
+      ingredients: ['Water'],
+      benefits: ['Hydrates'],
+      usage: 'both',
+      volume: '150ml',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    };
+    const result = ProductSchema.safeParse(sampleProduct);
+    expect(result.success).toBe(true);
+  });
 });
 
 describe('Sanitizer & Utility Functions', () => {

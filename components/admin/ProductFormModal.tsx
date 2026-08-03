@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Upload, X } from 'lucide-react';
 import { cloudinaryService } from '@/services/cloudinaryService';
 import { useToast } from '@/context/ToastContext';
+import { SafeImage } from '@/components/ui/SafeImage';
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -123,8 +124,8 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Input label="Sale Price ($)" type="number" value={price} onChange={(e) => setPrice(e.target.value)} required />
-          <Input label="Original Price ($)" type="number" value={originalPrice} onChange={(e) => setOriginalPrice(e.target.value)} placeholder="Optional" />
+          <Input label="Sale Price (₹)" type="number" value={price} onChange={(e) => setPrice(e.target.value)} required />
+          <Input label="Original Price (₹)" type="number" value={originalPrice} onChange={(e) => setOriginalPrice(e.target.value)} placeholder="Optional" />
           <Input label="Inventory Stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} required />
         </div>
 
@@ -183,12 +184,12 @@ export function ProductFormModal({ isOpen, onClose, onSubmit, initialData }: Pro
           </label>
           <div className="flex flex-wrap gap-3 items-center">
             {images.map((img, idx) => (
-              <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden border border-stone-200 dark:border-stone-700 group">
-                <img src={img} alt="Product upload preview" className="w-full h-full object-cover" />
+              <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden border border-stone-200 dark:border-[#2A2A2A] group">
+                <SafeImage src={img} alt="Product upload preview" fill className="object-cover" />
                 <button
                   type="button"
                   onClick={() => setImages(images.filter((_, i) => i !== idx))}
-                  className="absolute top-1 right-1 p-1 bg-rose-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-1 right-1 z-10 p-1 bg-rose-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <X className="w-3 h-3" />
                 </button>

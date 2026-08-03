@@ -150,26 +150,50 @@ export interface SkinDiagnosticInput {
   skinType: SkinType;
   ageGroup: string;
   primaryConcerns: string[];
+  secondaryConcerns?: string[];
   isSensitive: boolean;
   preferredTexture: string;
+  budget?: number;
+  routinePreference?: string;
+  allergies?: string;
+  goals?: string;
+}
+
+export interface AIRoutineStep {
+  step: number;
+  title: string;
+  productCategory: string;
+  recommendedProduct?: Product;
+  productId?: string;
+  productName?: string;
+  explanation: string;
+  reason?: string;
+  estimatedTime?: string;
 }
 
 export interface AIRoutineRecommendation {
-  morningRoutine: {
-    step: number;
-    title: string;
-    productCategory: string;
-    recommendedProduct?: Product;
-    explanation: string;
-  }[];
-  eveningRoutine: {
-    step: number;
-    title: string;
-    productCategory: string;
-    recommendedProduct?: Product;
-    explanation: string;
-  }[];
+  summary?: string;
+  skinAnalysis?: string;
+  morningRoutine: AIRoutineStep[];
+  eveningRoutine: AIRoutineStep[];
+  nightRoutine?: AIRoutineStep[];
+  recommendedIngredients?: (string | { name: string; mechanism?: string; benefits?: string; compatibility?: string; possibleIrritationNotes?: string; reason?: string })[];
+  whyTheseProducts?: string;
   expertAdvice: string;
+  lifestyleTips?: string[];
+  ingredientInteractionNotes?: string;
+  expectedTimeline?: {
+    week1?: string;
+    week2?: string;
+    week4?: string;
+    week8?: string;
+    maintenance?: string;
+  };
+  recommendationConfidence?: {
+    confidenceScore: number;
+    matchReasons: string[];
+  };
+  clarifyingQuestion?: string;
   suggestedIngredients: string[];
 }
 

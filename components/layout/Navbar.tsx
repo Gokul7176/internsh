@@ -9,6 +9,7 @@ import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/AuthContext';
 import { ThemeToggle } from './ThemeToggle';
 import { Badge } from '@/components/ui/Badge';
+import { SafeImage } from '@/components/ui/SafeImage';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -38,7 +39,7 @@ export function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-cream-50/90 dark:bg-stone-950/90 backdrop-blur-md border-b border-stone-200/50 dark:border-stone-800/50 shadow-sm py-3'
+          ? 'bg-cream-50/90 dark:bg-[#0B0B0C]/90 backdrop-blur-md border-b border-stone-200/50 dark:border-[#2A2A2A] shadow-sm py-3'
           : 'bg-transparent py-5'
       }`}
     >
@@ -47,18 +48,18 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-stone-700 dark:text-stone-300"
-            aria-label="Toggle menu"
+            className="md:hidden p-2 text-stone-700 dark:text-[#F5F5F5]"
+            aria-label="Toggle navigation menu"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
 
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-white font-serif text-lg font-bold shadow-md group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#D4AF37] to-[#E7C765] flex items-center justify-center text-stone-950 font-serif text-lg font-bold shadow-md group-hover:scale-105 transition-transform">
               L
             </div>
-            <span className="font-serif text-xl tracking-wider uppercase font-semibold text-stone-900 dark:text-cream-50">
-              Lumina<span className="font-sans text-xs lowercase text-amber-600 dark:text-amber-400 tracking-normal ml-1">skincare</span>
+            <span className="font-serif text-xl tracking-wider uppercase font-semibold text-stone-900 dark:text-[#F5F5F5]">
+              Lumina<span className="font-sans text-xs lowercase text-amber-600 dark:text-[#D4AF37] tracking-normal ml-1">skincare</span>
             </span>
           </Link>
         </div>
@@ -71,16 +72,16 @@ export function Navbar() {
               href={link.href}
               className={`text-sm font-medium tracking-wide transition-colors relative py-1 ${
                 pathname === link.href
-                  ? 'text-amber-700 dark:text-amber-400 font-semibold'
-                  : 'text-stone-700 hover:text-amber-600 dark:text-stone-300 dark:hover:text-amber-400'
+                  ? 'text-amber-700 dark:text-[#D4AF37] font-semibold'
+                  : 'text-stone-700 hover:text-amber-600 dark:text-[#A0A0A0] dark:hover:text-[#D4AF37]'
               }`}
             >
               <span className="flex items-center gap-1.5">
-                {link.highlight && <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />}
+                {link.highlight && <Sparkles className="w-3.5 h-3.5 text-[#D4AF37] animate-pulse" />}
                 {link.name}
               </span>
               {pathname === link.href && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500 rounded-full" />
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D4AF37] rounded-full" />
               )}
             </Link>
           ))}
@@ -92,7 +93,7 @@ export function Navbar() {
 
           <Link
             href="/catalog"
-            className="p-2.5 rounded-full text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+            className="p-2.5 rounded-full text-stone-700 dark:text-[#A0A0A0] hover:bg-stone-100 dark:hover:bg-[#1B1B1B] dark:hover:text-[#F5F5F5] transition-colors"
             aria-label="Search products"
           >
             <Search className="w-5 h-5" />
@@ -100,12 +101,12 @@ export function Navbar() {
 
           <Link
             href="/dashboard?tab=wishlist"
-            className="p-2.5 rounded-full text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors relative"
+            className="p-2.5 rounded-full text-stone-700 dark:text-[#A0A0A0] hover:bg-stone-100 dark:hover:bg-[#1B1B1B] dark:hover:text-[#F5F5F5] transition-colors relative"
             aria-label="Wishlist"
           >
             <Heart className="w-5 h-5" />
             {wishlistCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-amber-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute top-1 right-1 w-4 h-4 bg-amber-600 dark:bg-[#D4AF37] text-white dark:text-[#0B0B0C] text-[10px] font-bold rounded-full flex items-center justify-center">
                 {wishlistCount}
               </span>
             )}
@@ -113,12 +114,12 @@ export function Navbar() {
 
           <Link
             href="/cart"
-            className="p-2.5 rounded-full text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors relative"
+            className="p-2.5 rounded-full text-stone-700 dark:text-[#A0A0A0] hover:bg-stone-100 dark:hover:bg-[#1B1B1B] dark:hover:text-[#F5F5F5] transition-colors relative"
             aria-label="Shopping bag"
           >
             <ShoppingBag className="w-5 h-5" />
             {itemCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-stone-900 dark:bg-amber-400 text-white dark:text-stone-950 text-[10px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute top-1 right-1 w-4 h-4 bg-stone-900 dark:bg-[#D4AF37] text-white dark:text-[#0B0B0C] text-[10px] font-bold rounded-full flex items-center justify-center">
                 {itemCount}
               </span>
             )}
@@ -129,12 +130,13 @@ export function Navbar() {
             {user ? (
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-2 p-1.5 rounded-full border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                aria-label="User profile menu"
+                className="flex items-center gap-2 p-1.5 rounded-full border border-stone-300 dark:border-[#2A2A2A] hover:bg-stone-100 dark:hover:bg-[#1B1B1B] transition-colors"
               >
                 {user.photoURL ? (
-                  <img src={user.photoURL} alt={user.displayName} className="w-7 h-7 rounded-full object-cover" />
+                  <SafeImage src={user.photoURL} alt={user.displayName} width={28} height={28} className="w-7 h-7 rounded-full object-cover shrink-0" />
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 flex items-center justify-center font-semibold text-xs uppercase">
+                  <div className="w-7 h-7 rounded-full bg-amber-100 dark:bg-[#1B1B1B] text-amber-800 dark:text-[#D4AF37] border dark:border-[#2A2A2A] flex items-center justify-center font-semibold text-xs uppercase shrink-0">
                     {user.displayName.charAt(0)}
                   </div>
                 )}
@@ -142,7 +144,7 @@ export function Navbar() {
             ) : (
               <Link
                 href="/auth/login"
-                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-stone-900 dark:text-cream-50 border border-stone-300 dark:border-stone-700 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-stone-900 dark:text-[#F5F5F5] border border-stone-300 dark:border-[#2A2A2A] rounded-full hover:bg-stone-100 dark:hover:bg-[#1B1B1B] transition-colors"
               >
                 <User className="w-4 h-4" /> Sign In
               </Link>
@@ -150,10 +152,10 @@ export function Navbar() {
 
             {/* Profile Dropdown */}
             {profileDropdownOpen && user && (
-              <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-stone-900 rounded-2xl shadow-xl border border-stone-200 dark:border-stone-800 py-2 z-50 animate-scale-up">
-                <div className="px-4 py-2 border-b border-stone-100 dark:border-stone-800">
-                  <p className="text-sm font-semibold text-stone-900 dark:text-stone-100 truncate">{user.displayName}</p>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 truncate">{user.email}</p>
+              <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-[#151515] rounded-2xl shadow-xl border border-stone-200 dark:border-[#2A2A2A] py-2 z-50 animate-scale-up">
+                <div className="px-4 py-2 border-b border-stone-100 dark:border-[#2A2A2A]">
+                  <p className="text-sm font-semibold text-stone-900 dark:text-[#F5F5F5] truncate">{user.displayName}</p>
+                  <p className="text-xs text-stone-500 dark:text-[#A0A0A0] truncate">{user.email}</p>
                   {isAdmin && (
                     <Badge variant="gold" size="sm" className="mt-1">
                       Admin Access
@@ -164,7 +166,7 @@ export function Navbar() {
                 <Link
                   href="/dashboard"
                   onClick={() => setProfileDropdownOpen(false)}
-                  className="block px-4 py-2 text-sm text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  className="block px-4 py-2 text-sm text-stone-700 dark:text-[#A0A0A0] hover:bg-stone-100 dark:hover:bg-[#1B1B1B] dark:hover:text-[#F5F5F5]"
                 >
                   My Profile & Orders
                 </Link>
@@ -173,7 +175,7 @@ export function Navbar() {
                   <Link
                     href="/admin"
                     onClick={() => setProfileDropdownOpen(false)}
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-amber-700 dark:text-amber-400 font-semibold hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-amber-700 dark:text-[#D4AF37] font-semibold hover:bg-amber-50 dark:hover:bg-[#1B1B1B]"
                   >
                     <ShieldAlert className="w-4 h-4" /> Admin Dashboard
                   </Link>
@@ -184,7 +186,7 @@ export function Navbar() {
                     setProfileDropdownOpen(false);
                     logout();
                   }}
-                  className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border-t border-stone-100 dark:border-stone-800 mt-1"
+                  className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border-t border-stone-100 dark:border-[#2A2A2A] mt-1"
                 >
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>
@@ -196,13 +198,13 @@ export function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-cream-50 dark:bg-stone-950 border-b border-stone-200 dark:border-stone-800 px-4 py-6 space-y-4 animate-fade-in">
+        <div className="md:hidden bg-cream-50 dark:bg-[#0B0B0C] border-b border-stone-200 dark:border-[#2A2A2A] px-4 py-6 space-y-4 animate-fade-in">
           {navLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className="block text-base font-medium text-stone-800 dark:text-stone-200 hover:text-amber-600 py-1"
+              className="block text-base font-medium text-stone-800 dark:text-[#F5F5F5] hover:text-amber-600 py-1"
             >
               {link.name}
             </Link>
@@ -211,20 +213,20 @@ export function Navbar() {
             <Link
               href="/auth/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="block text-center py-2.5 bg-stone-900 text-white rounded-full text-sm font-semibold"
+              className="block text-center py-2.5 bg-stone-900 dark:bg-[#F5F5F5] text-white dark:text-[#0B0B0C] rounded-full text-sm font-semibold"
             >
               Sign In / Register
             </Link>
           ) : (
-            <div className="pt-2 border-t border-stone-200 dark:border-stone-800 space-y-2">
-              <div className="text-xs text-stone-500">Demo Role Switcher:</div>
+            <div className="pt-2 border-t border-stone-200 dark:border-[#2A2A2A] space-y-2">
+              <div className="text-xs text-stone-500 dark:text-[#777777]">Demo Role Switcher:</div>
               <div className="flex gap-2">
                 <button
                   onClick={() => {
                     setDemoUser('customer');
                     setMobileMenuOpen(false);
                   }}
-                  className="flex-1 py-1.5 text-xs rounded-lg border border-stone-300 dark:border-stone-700"
+                  className="flex-1 py-1.5 text-xs rounded-lg border border-stone-300 dark:border-[#2A2A2A] text-stone-700 dark:text-[#F5F5F5]"
                 >
                   Demo Customer
                 </button>
@@ -233,7 +235,7 @@ export function Navbar() {
                     setDemoUser('admin');
                     setMobileMenuOpen(false);
                   }}
-                  className="flex-1 py-1.5 text-xs rounded-lg bg-amber-600 text-white font-semibold"
+                  className="flex-1 py-1.5 text-xs rounded-lg bg-[#D4AF37] text-stone-950 font-semibold"
                 >
                   Demo Admin
                 </button>

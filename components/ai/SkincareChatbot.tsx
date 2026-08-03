@@ -3,10 +3,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, Bot, RefreshCw } from 'lucide-react';
 import { ChatMessage, Product } from '@/types';
-
-import { generateId } from '@/lib/utils';
+import { generateId, formatPrice } from '@/lib/utils';
+import { SafeImage } from '@/components/ui/SafeImage';
+import { useAuth } from '@/context/AuthContext';
 
 export function SkincareChatbot() {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [inputQuery, setInputQuery] = useState<string>('');
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -47,10 +49,23 @@ export function SkincareChatbot() {
     setLoading(true);
 
     try {
+      const userProfile = user
+        ? {
+            skinType: user.skinType,
+            primaryConcerns: user.primaryConcerns,
+            ageGroup: '25-34',
+            isSensitive: false,
+          }
+        : undefined;
+
       const res = await fetch('/api/gemini/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: textToSend, history: messages }),
+        body: JSON.stringify({
+          query: textToSend,
+          history: messages.slice(-10),
+          userProfile,
+        }),
       });
       const payload = await res.json();
       const result = payload.success ? payload.data : { text: payload.error || 'Unable to connect to AI assistant.' };
@@ -82,12 +97,12 @@ export function SkincareChatbot() {
       {/* Floating launcher button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-stone-900 dark:bg-amber-500 text-white dark:text-stone-950 shadow-2xl hover:scale-105 transition-transform flex items-center gap-2 group border border-amber-400/40"
+        className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-stone-900 dark:bg-[#D4AF37] text-white dark:text-[#0B0B0C] shadow-2xl hover:scale-105 transition-transform flex items-center gap-2 group border border-amber-400/40"
         aria-label="Open AI Skincare Assistant"
         aria-expanded={isOpen}
         aria-controls="skincare-chatbot-drawer"
       >
-        <Sparkles className="w-5 h-5 text-amber-400 dark:text-stone-950 animate-pulse" />
+        <Sparkles className="w-5 h-5 text-amber-400 dark:text-[#0B0B0C] animate-pulse" />
         <span className="text-xs font-bold uppercase tracking-wider hidden sm:inline">Ask Lumina AI</span>
       </button>
 
@@ -97,19 +112,19 @@ export function SkincareChatbot() {
           id="skincare-chatbot-drawer"
           role="dialog"
           aria-label="Lumina AI Skincare Assistant"
-          className="fixed bottom-24 right-4 sm:right-6 z-50 w-[92vw] sm:w-[420px] h-[550px] bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-stone-200/80 dark:border-stone-800/80 flex flex-col overflow-hidden animate-slide-up"
+          className="fixed bottom-24 right-4 sm:right-6 z-50 w-[92vw] sm:w-[420px] h-[550px] bg-white/95 dark:bg-[#151515] backdrop-blur-xl rounded-3xl shadow-2xl border border-stone-200/80 dark:border-[#2A2A2A] flex flex-col overflow-hidden animate-slide-up"
         >
           {/* Chat Header */}
-          <div className="p-4 bg-stone-900 text-white flex items-center justify-between border-b border-stone-800">
+          <div className="p-4 bg-stone-900 dark:bg-[#0B0B0C] text-white flex items-center justify-between border-b border-stone-800 dark:border-[#2A2A2A]">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-stone-950 font-bold">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#D4AF37] to-[#E7C765] flex items-center justify-center text-stone-950 font-bold">
                 <Bot className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold flex items-center gap-1.5">
-                  Lumina AI Advisor <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <h4 className="text-sm font-semibold flex items-center gap-1.5 text-white dark:text-[#F5F5F5]">
+                  Lumina AI Advisor <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
                 </h4>
-                <p className="text-[10px] text-stone-400">Powered by Gemini 2.5 • Skincare Intelligence</p>
+                <p className="text-[10px] text-stone-400 dark:text-[#A0A0A0]">Powered by Gemini 2.5 • Skincare Intelligence</p>
               </div>
             </div>
             <button
@@ -129,7 +144,7 @@ export function SkincareChatbot() {
                 className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.sender === 'ai' && (
-                  <div className="w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 flex items-center justify-center shrink-0 mt-0.5 font-bold">
+                  <div className="w-7 h-7 rounded-full bg-amber-100 dark:bg-[#1B1B1B] text-amber-800 dark:text-[#D4AF37] border dark:border-[#2A2A2A] flex items-center justify-center shrink-0 mt-0.5 font-bold">
                     AI
                   </div>
                 )}
@@ -137,8 +152,8 @@ export function SkincareChatbot() {
                   <div
                     className={`p-3.5 rounded-2xl leading-relaxed whitespace-pre-wrap ${
                       msg.sender === 'user'
-                        ? 'bg-stone-900 text-white dark:bg-amber-500 dark:text-stone-950 font-medium'
-                        : 'bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200/60 dark:border-stone-700/60'
+                        ? 'bg-stone-900 text-white dark:bg-[#D4AF37] dark:text-[#0B0B0C] font-semibold'
+                        : 'bg-stone-100 dark:bg-[#1B1B1B] text-stone-800 dark:text-[#F5F5F5] border border-stone-200/60 dark:border-[#2A2A2A]'
                     }`}
                   >
                     {msg.text}
@@ -147,26 +162,29 @@ export function SkincareChatbot() {
                   {/* Product Recommendations inside Chat */}
                   {msg.suggestedProducts && msg.suggestedProducts.length > 0 && (
                     <div className="space-y-2 pt-1">
-                      <p className="text-[10px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+                      <p className="text-[10px] font-bold text-amber-700 dark:text-[#D4AF37] uppercase tracking-wider">
                         Recommended Catalog Items:
                       </p>
                       <div className="grid grid-cols-1 gap-2">
                         {msg.suggestedProducts.map((prod: Product) => (
                           <div
                             key={prod.id}
-                            className="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800"
+                            className="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-[#1B1B1B] border border-stone-200 dark:border-[#2A2A2A]"
                           >
-                            <img
-                              src={prod.images?.[0] || 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be'}
-                              alt={prod.name}
-                              className="w-10 h-10 object-cover rounded-lg shrink-0"
-                            />
+                            <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0">
+                              <SafeImage
+                                src={prod.images?.[0]}
+                                alt={prod.name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
                             <div className="min-w-0 flex-1">
-                              <h5 className="font-semibold truncate text-[11px] text-stone-900 dark:text-white">
+                              <h5 className="font-semibold truncate text-[11px] text-stone-900 dark:text-[#F5F5F5]">
                                 {prod.name}
                               </h5>
-                              <p className="text-[10px] font-bold text-amber-700 dark:text-amber-400">
-                                ${prod.price}
+                              <p className="text-[10px] font-bold text-amber-700 dark:text-[#D4AF37]">
+                                {formatPrice(prod.price)}
                               </p>
                             </div>
                           </div>
@@ -174,26 +192,26 @@ export function SkincareChatbot() {
                       </div>
                     </div>
                   )}
-                  <p className="text-[9px] text-stone-400 text-right px-1">{msg.timestamp}</p>
+                  <p className="text-[9px] text-stone-400 dark:text-[#777777] text-right px-1">{msg.timestamp}</p>
                 </div>
               </div>
             ))}
 
             {loading && (
-              <div className="flex items-center gap-2 text-stone-400 text-xs italic">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Lumina AI is formulating response...
+              <div className="flex items-center gap-2 text-stone-400 dark:text-[#A0A0A0] text-xs italic">
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#D4AF37]" /> Lumina AI is formulating response...
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
           {/* Quick Prompts */}
-          <div className="px-3 py-2 border-t border-stone-200/60 dark:border-stone-800/60 flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-stone-50/50 dark:bg-stone-950/50">
+          <div className="px-3 py-2 border-t border-stone-200/60 dark:border-[#2A2A2A] flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-stone-50/50 dark:bg-[#0B0B0C]">
             {quickPrompts.map((qp, i) => (
               <button
                 key={i}
                 onClick={() => handleSend(qp)}
-                className="px-2.5 py-1 rounded-full bg-white dark:bg-stone-800 text-[10px] text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 hover:border-amber-500 shrink-0 transition-colors"
+                className="px-2.5 py-1 rounded-full bg-white dark:bg-[#1B1B1B] text-[10px] text-stone-700 dark:text-[#A0A0A0] border border-stone-200 dark:border-[#2A2A2A] hover:border-[#D4AF37] dark:hover:border-[#D4AF37] dark:hover:text-[#F5F5F5] shrink-0 transition-colors"
               >
                 {qp}
               </button>
@@ -206,20 +224,20 @@ export function SkincareChatbot() {
               e.preventDefault();
               handleSend();
             }}
-            className="p-3 bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800 flex items-center gap-2"
+            className="p-3 bg-white dark:bg-[#151515] border-t border-stone-200 dark:border-[#2A2A2A] flex items-center gap-2"
           >
             <input
               type="text"
               placeholder="Ask about ingredients or routine..."
               value={inputQuery}
               onChange={(e) => setInputQuery(e.target.value)}
-              className="flex-1 px-4 py-2 text-xs rounded-full bg-stone-100 dark:bg-stone-800 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="flex-1 px-4 py-2 text-xs rounded-full bg-stone-100 dark:bg-[#1B1B1B] text-stone-900 dark:text-[#F5F5F5] placeholder-stone-400 dark:placeholder-[#777777] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
               aria-label="Skincare Question Input"
             />
             <button
               type="submit"
               disabled={!inputQuery.trim() || loading}
-              className="p-2.5 rounded-full bg-amber-600 text-white disabled:opacity-50 hover:bg-amber-700 transition-colors shrink-0"
+              className="p-2.5 rounded-full bg-[#D4AF37] text-stone-950 disabled:opacity-50 hover:bg-[#E7C765] transition-colors shrink-0 font-bold"
               aria-label="Send Question"
             >
               <Send className="w-3.5 h-3.5" />

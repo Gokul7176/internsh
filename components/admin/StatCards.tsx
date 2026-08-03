@@ -1,5 +1,7 @@
+'use client';
+
 import React from 'react';
-import { DollarSign, ShoppingBag, Users, Package, AlertTriangle } from 'lucide-react';
+import { IndianRupee, ShoppingBag, Users, Package, AlertTriangle } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 
 interface StatCardsProps {
@@ -22,7 +24,7 @@ export function StatCards({
       title: 'Total Gross Revenue',
       value: formatPrice(totalRevenue),
       subtitle: '+18.4% from last month',
-      icon: DollarSign,
+      icon: IndianRupee,
       color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
     },
     {
@@ -30,7 +32,7 @@ export function StatCards({
       value: totalOrders.toString(),
       subtitle: 'Active processing & fulfillment',
       icon: ShoppingBag,
-      color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+      color: 'bg-[#D4AF37]/10 text-[#D4AF37]',
     },
     {
       title: 'Active Customers',
@@ -44,7 +46,7 @@ export function StatCards({
       value: `${totalProducts} Products`,
       subtitle: lowStockCount > 0 ? `${lowStockCount} items low stock` : 'Optimal stock levels',
       icon: lowStockCount > 0 ? AlertTriangle : Package,
-      color: lowStockCount > 0 ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' : 'bg-stone-500/10 text-stone-600 dark:text-stone-300',
+      color: lowStockCount > 0 ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' : 'bg-stone-500/10 text-stone-600 dark:text-[#A0A0A0]',
     },
   ];
 
@@ -53,18 +55,18 @@ export function StatCards({
       {stats.map((s, i) => (
         <div
           key={i}
-          className="p-6 rounded-3xl bg-white/80 dark:bg-stone-900/80 border border-stone-200/80 dark:border-stone-800/80 backdrop-blur-md shadow-sm space-y-3"
+          className="p-6 rounded-3xl bg-white/80 dark:bg-[#151515] border border-stone-200/80 dark:border-[#2A2A2A] backdrop-blur-md shadow-sm space-y-3"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-[#A0A0A0]">
               {s.title}
             </span>
             <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${s.color}`}>
               <s.icon className="w-5 h-5" />
             </div>
           </div>
-          <div className="font-serif text-3xl font-bold text-stone-900 dark:text-white">{s.value}</div>
-          <p className="text-xs text-stone-500 dark:text-stone-400">{s.subtitle}</p>
+          <div className="font-serif text-3xl font-bold text-stone-900 dark:text-[#F5F5F5]">{s.value}</div>
+          <p className="text-xs text-stone-500 dark:text-[#777777]">{s.subtitle}</p>
         </div>
       ))}
     </div>
