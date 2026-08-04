@@ -16,8 +16,8 @@ import {
 } from './ai/fallbackEngine';
 import { logger } from './logger';
 
-// Server-only Gemini API Key initialization
-const apiKey = process.env.GEMINI_API_KEY || '';
+// Gemini API Key initialization
+const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
 export const aiClient = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 export async function generateSkinRecommendation(

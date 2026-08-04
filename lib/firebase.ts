@@ -13,11 +13,17 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase safely
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+export const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// Initialize Analytics safely on browser environment
+export const analytics = typeof window !== 'undefined' ? (async () => {
+  const { getAnalytics, isSupported } = await import('firebase/analytics');
+  return (await isSupported()) ? getAnalytics(app) : null;
+})() : null;
 
 export const isFirebaseConfigured = (): boolean => {
   return Boolean(
